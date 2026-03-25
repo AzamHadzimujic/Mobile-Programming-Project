@@ -1,22 +1,19 @@
 package presentation.ui.screens.screen1.screen
 
 import androidx.compose.runtime.Composable
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
-import android.os.Bundle
-import androidx.compose.material3.Text
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.ui.tooling.preview.Preview
+import presentation.ui.sharedComponents.CheckboxExample
 
 @Composable
 fun Screen1(){
-
+    CheckboxExample()
 }
 
-class MainActivity : ComponentActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContent {
-            Text("Hello world!")
-            Screen1()
-        }
+@Preview(showBackground = true)
+@Composable
+fun PreviewScreen1() {
+    MaterialTheme {
+        CheckboxExample()
     }
 }
