@@ -84,37 +84,36 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 }
 // --- CHECKBOX FOR TOS ---
 @Composable
-    fun Checkbox() {
+fun TermsCheckbox() {
     val context = LocalContext.current
     var isChecked by remember { mutableStateOf(false) }
-    Column(
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
-            .padding(24.dp)
             .fillMaxWidth()
-    ){
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier
-                .fillMaxWidth()
-                .clickable{
-                    isChecked = !isChecked
-                }
-                .padding(vertical = 8.dp)
-        ){
-            Checkbox(
-                checked = isChecked,
-                onCheckedChange = {
-                    isChecked = it
-                        Toast
-                            .makeText(
-                                context,
-                                if (isChecked) "You accepted the ToS" else "You declined the ToS",
-                                Toast.LENGTH_SHORT
-                            )
-                            .show()
-                }
-            )
-        }
+            .clickable {
+                isChecked = !isChecked
+                Toast.makeText(
+                    context,
+                    if (isChecked) "You accepted the ToS" else "You declined the ToS",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+            .padding(16.dp)
+    ) {
+        Checkbox(
+            checked = isChecked,
+            onCheckedChange = {
+                isChecked = it
+                Toast.makeText(
+                    context,
+                    if (isChecked) "You accepted the ToS" else "You declined the ToS",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        )
+        Spacer(modifier = Modifier.width(8.dp))
+        Text("Accept Terms of Service")
     }
 }
 // --- RADIO BUTTON FOR GENDER ---
@@ -291,7 +290,7 @@ fun PreviewButtonVariations() {
         ButtonSave()
         ButtonCancel()
         ButtonLearnMore()
-        Checkbox()
+        TermsCheckbox()
         RadioButton()
         SwitchDarkMode()
         SwitchNotification()
