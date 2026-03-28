@@ -2,64 +2,47 @@ package presentation.ui.sharedComponents
 
 import android.widget.Toast
 import androidx.compose.foundation.layout.*
-import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
-import androidx.compose.material3.Checkbox
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
-import androidx.compose.runtime.*
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.selection.selectable
-import androidx.compose.material3.RadioButton
-import androidx.compose.ui.semantics.Role
+import androidx.compose.material3.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.font.FontWeight.Companion.ExtraBold
+import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
 
 // --- BUTTON FOR SAVE ---
 @Composable
-    fun ButtonSave() {
+    fun ButtonSave(onClick: () -> Unit, modifier: Modifier = Modifier) {
     val context = LocalContext.current
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(12.dp),
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp)
+    Button(
+        onClick = {
+            onClick()
+            Toast.makeText(context, "Changes have been saved", Toast.LENGTH_SHORT).show()
+        },
+        modifier = modifier.padding(4.dp)
     ) {
-        Button(
-            onClick = {
-                Toast.makeText(context, "Changes have been saved", Toast.LENGTH_SHORT).show()
-            }
-        ) {
-            Text("Save")
-        }
+        Text("Save")
     }
 }
 // --- BUTTON FOR CANCEL ---
 @Composable
-    fun ButtonCancel() {
+fun ButtonCancel(modifier: Modifier = Modifier, onClick: () -> Unit = {}) {
     val context = LocalContext.current
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(12.dp),
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp)
+    OutlinedButton(
+        onClick = {
+            onClick()
+            Toast.makeText(context, "Action cancelled!", Toast.LENGTH_SHORT).show()
+        },
+        modifier = modifier.padding(4.dp)
     ) {
-        OutlinedButton(
-            onClick = {
-                Toast.makeText(context, "Action cancelled!", Toast.LENGTH_SHORT).show()
-            }
-        ) {
-            Text("Cancel")
-        }
+        Text("Cancel")
     }
 }
 // --- BUTTON FOR LEARN MORE ---
@@ -215,85 +198,33 @@ fun SwitchNotification() {
         ){
             Text(
             "Receive alerts for messages",
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
+                style = MaterialTheme.typography.bodyLarge,
+                fontWeight = ExtraBold,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
         )
-        }
-        Switch(
-            checked = notificationsEnabled,
-            onCheckedChange = {
-                notificationsEnabled = it
-                Toast
-                    .makeText(
-                        context,
-                        if (it) "Notifications enabled!" else "Notifications disabled!",
-                        Toast.LENGTH_SHORT
-                    )
-                    .show()
-            }
-        )
-    }
-}
-// --- SIMPLE FORM (TRANSFER TO PAGE THAT USES THIS SINCE IT IS NOT SHARED!!!) ---
-@Composable
-fun SubmitForm() {
-    val context = LocalContext.current
-    var username by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
-    val isFormValid = username.isNotBlank() && password.length >= 8
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(24.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
-    ) {
-        OutlinedTextField(
-            value = username,
-            onValueChange = { username = it },
-            label = { Text("Username") },
-            modifier = Modifier.fillMaxWidth()
-        )
-        OutlinedTextField(
-            value = password,
-            onValueChange = { password = it },
-            label = { Text("Password (min 8 chars)") },
-            visualTransformation = PasswordVisualTransformation(),
-            modifier = Modifier.fillMaxWidth()
-        )
-        Button(
-            onClick = {
-                Toast.makeText(
-                    context,
-                    "Form submitted for $username",
-                    Toast.LENGTH_SHORT
-                ).show()
-            },
-            enabled = isFormValid,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text("Submit")
-        }
-        if (!isFormValid) {
-            Text(
-                text = "Username required and password must be at least 8 characters.",
-                style = MaterialTheme.typography.bodySmall
+            Switch(
+                checked = notificationsEnabled,
+                onCheckedChange = {
+                    notificationsEnabled = it
+                    Toast
+                        .makeText(
+                            context,
+                            if (it) "Notifications enabled!" else "Notifications disabled!",
+                            Toast.LENGTH_SHORT
+                        )
+                        .show()
+                }
             )
         }
     }
 }
-
-// --- PREVIEW ---
-@Preview(showBackground = true)
+// --- SIMPLE FORM INPUT FIELD ---
 @Composable
-fun PreviewButtonVariations() {
-    MaterialTheme {
-        ButtonSave()
-        ButtonCancel()
-        ButtonLearnMore()
-        TermsCheckbox()
-        RadioButton()
-        SwitchDarkMode()
-        SwitchNotification()
-        SubmitForm()
-    }
+fun InputField(label: String, value: String, onChange: (String) -> Unit) {
+    OutlinedTextField(
+        value = value,
+        onValueChange = onChange,
+        label = { Text(label) },
+        modifier = Modifier.fillMaxWidth()
+    )
 }
