@@ -7,7 +7,7 @@ import androidx.activity.enableEdgeToEdge
 import presentation.ui.screens.screen1.screen.Homescreen
 import presentation.ui.screens.screen2.screen.CurrentTripScreen
 import presentation.ui.screens.screen3.screen.AddExpenseScreen
-import presentation.ui.screens.screen4.screen.PastTripsScreen
+import presentation.ui.screens.screen4.screen.PastTripScreen
 import presentation.ui.screens.screen5.screen.LoginScreen
 
 class MainActivity : ComponentActivity() {
@@ -18,7 +18,7 @@ class MainActivity : ComponentActivity() {
             Homescreen()
             CurrentTripScreen()
             AddExpenseScreen()
-            PastTripsScreen()
+            PastTripScreen()
             LoginScreen()
         }
     }
