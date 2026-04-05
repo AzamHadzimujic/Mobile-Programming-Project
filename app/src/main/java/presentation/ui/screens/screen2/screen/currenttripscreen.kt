@@ -40,7 +40,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
-// DATA MODEL
+// DATA CLASS
 // ✅ @Stable — helps Compose skip unnecessary recompositions
 @Stable
 data class ExpenseItem(
