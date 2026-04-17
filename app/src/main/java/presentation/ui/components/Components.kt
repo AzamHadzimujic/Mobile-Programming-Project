@@ -249,3 +249,18 @@ fun InfoBox(
         Text(text)
     }
 }
+// STATELESS SEARCH BAR
+@Composable
+fun SearchBar(
+    query: String,
+    onQueryChange: (String) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    OutlinedTextField(
+        value = query,
+        onValueChange = onQueryChange,
+        label = { Text("Search expenses") },
+        singleLine = true,
+        modifier = modifier.fillMaxWidth()
+    )
+}

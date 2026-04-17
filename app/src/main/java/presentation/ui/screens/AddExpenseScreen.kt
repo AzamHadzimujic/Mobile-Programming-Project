@@ -1,4 +1,4 @@
-package presentation.ui.screens.screen3.screen
+package presentation.ui.screens
 
 import android.widget.Toast
 import androidx.compose.foundation.layout.Column

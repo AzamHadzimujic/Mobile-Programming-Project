@@ -1,4 +1,4 @@
-package presentation.ui.screens.screen4.screen
+package presentation.ui.screens
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -38,19 +38,20 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import model.PastTripItem
+import model.ExpenseItem
+import presentation.ui.components.SearchBar
 
 // STATEFUL SCREEN — single source of truth for all state
 @Composable
-fun PastTripScreen() {
+fun CurrentTripScreen() {
 
     // ✅ mutableStateListOf — observable list
-    val pastTripItems = remember {
+    val expenseItems = remember {
         mutableStateListOf(
-            PastTripItem(1, "Italy Trip", false, listOf("Food", "Culture"), 250, "March 2022"),
-            PastTripItem(2, "Germany Trip", true, listOf("History", "Nature"), 300, "May 2023"),
-            PastTripItem(3, "Japan Trip", true, listOf("Culture", "History"), 680, "June 2021"),
-            PastTripItem(4, "Brazil Trip", true, listOf("Food", "Nature"), 740, "January 2026"),
+            ExpenseItem(1, "DoorDash delivery", false, listOf("Food", "Delivery"), 25),
+            ExpenseItem(2, "Museum Visit", true, listOf("Culture", "Visit"), 30),
+            ExpenseItem(3, "Lunch at the beach", true, listOf("Food", "Restaurant"), 150),
+            ExpenseItem(4, "Public Transport", true, listOf("Personal", "Transport"), 10),
         )
     }
 
@@ -58,53 +59,45 @@ fun PastTripScreen() {
     var showCompleted by rememberSaveable { mutableStateOf(true) }
 
     // ✅ derivedStateOf — only recomposes when result changes
-    val filteredPastTrips by remember {
+    val filteredExpenses by remember {
         derivedStateOf {
-            pastTripItems.filter { pastTrip ->
-                val matchesQuery = pastTrip.title.contains(searchQuery, ignoreCase = true)
-                val matchesFilter = if (showCompleted) true else !pastTrip.isPaid
+            expenseItems.filter { expense ->
+                val matchesQuery = expense.title.contains(searchQuery, ignoreCase = true)
+                val matchesFilter = if (showCompleted) true else !expense.isPaid
                 matchesQuery && matchesFilter
             }
         }
     }
 
-    val completedCount by remember { derivedStateOf { pastTripItems.count { it.isPaid } } }
-    val totalCount by remember { derivedStateOf { pastTripItems.size } }
-    val allDone by remember { derivedStateOf { pastTripItems.isNotEmpty() && completedCount == totalCount } }
+    val completedCount by remember { derivedStateOf { expenseItems.count { it.isPaid } } }
+    val totalCount by remember { derivedStateOf { expenseItems.size } }
+    val allDone by remember { derivedStateOf { expenseItems.isNotEmpty() && completedCount == totalCount } }
 
-    var nextId by remember { mutableStateOf(pastTripItems.size + 1) }
+    var nextId by remember { mutableStateOf(expenseItems.size + 1) }
 
     // ✅ remember(key) — stable lambda, not recreated on every recomposition
-    val onToggleComplete: (PastTripItem) -> Unit = remember(pastTripItems.toList()) {
-        { pastTrip ->
-            val index = pastTripItems.indexOfFirst { it.id == pastTrip.id }
-            if (index != -1) pastTripItems[index] = pastTrip.copy(isPaid = !pastTrip.isPaid)
+    val onToggleComplete: (ExpenseItem) -> Unit = remember(expenseItems.toList()) {
+        { expense ->
+            val index = expenseItems.indexOfFirst { it.id == expense.id }
+            if (index != -1) expenseItems[index] = expense.copy(isPaid = !expense.isPaid)
         }
     }
 
-    val onDeleteTrip: (PastTripItem) -> Unit = remember(pastTripItems.toList()) {
+    val onDeleteExpense: (ExpenseItem) -> Unit = remember(expenseItems.toList()) {
         { expenseItem ->
-            pastTripItems.remove(expenseItem)
+            expenseItems.remove(expenseItem)
         }
     }
 
-    val onAddTrip: (String) -> Unit = remember {
+    val onAddExpense: (String) -> Unit = remember {
         { title ->
-            pastTripItems.add(
-                PastTripItem(
-                    id = nextId++,
-                    title = title,
-                    categories = listOf("New"),
-                    amount = 250,
-                    date = "April 2026"
-                )
-            )
+            expenseItems.add(ExpenseItem(id = nextId++, title = title, categories = listOf("New"), amount = 50))
         }
     }
 
     // ── State flows DOWN to stateless child ──
-    PastTripsContent(
-        pastTrips = filteredPastTrips,
+    ExpensesContent(
+        expenses = filteredExpenses,
         searchQuery = searchQuery,
         showCompleted = showCompleted,
         completedCount = completedCount,
@@ -113,9 +106,9 @@ fun PastTripScreen() {
         onSearchQueryChange = { searchQuery = it },
         onShowCompletedToggle = { showCompleted = !showCompleted },
         onToggleComplete = onToggleComplete,
-        onDeleteTrip = onDeleteTrip,
-        onAddTrip = onAddTrip,
-        onClearCompleted = { pastTripItems.removeAll { it.isPaid } }
+        onDeleteExpense = onDeleteExpense,
+        onAddExpense = onAddExpense,
+        onClearCompleted = { expenseItems.removeAll { it.isPaid } }
     )
 }
 
@@ -124,8 +117,8 @@ fun PastTripScreen() {
 // ────────────────────────────────────────────────────────────-
 
 @Composable
-fun PastTripsContent(
-    pastTrips: List<PastTripItem>,
+fun ExpensesContent(
+    expenses: List<ExpenseItem>,
     searchQuery: String,
     showCompleted: Boolean,
     completedCount: Int,
@@ -133,14 +126,14 @@ fun PastTripsContent(
     allDone: Boolean,
     onSearchQueryChange: (String) -> Unit,
     onShowCompletedToggle: () -> Unit,
-    onToggleComplete: (PastTripItem) -> Unit,
-    onDeleteTrip: (PastTripItem) -> Unit,
-    onAddTrip: (String) -> Unit,
+    onToggleComplete: (ExpenseItem) -> Unit,
+    onDeleteExpense: (ExpenseItem) -> Unit,
+    onAddExpense: (String) -> Unit,
     onClearCompleted: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     // ✅ remember — local UI state scoped only to this composable
-    var newPastTripText by remember { mutableStateOf("") }
+    var newExpenseText by remember { mutableStateOf("") }
 
     Column(
         modifier = modifier
@@ -151,13 +144,13 @@ fun PastTripsContent(
 
         // ── Header ──
         Text(
-            text = "Past Trips Expenses",
+            text = "Current Trip Expenses",
             style = MaterialTheme.typography.headlineSmall,
             fontWeight = FontWeight.Bold
         )
 
         Text(
-            text = if (allDone) "✅ All past trips covered!"
+            text = if (allDone) "✅ All expenses covered!"
             else "$completedCount / $totalCount covered!",
             style = MaterialTheme.typography.bodyMedium,
             color = if (allDone) Color(0xFF43A047)
@@ -179,7 +172,7 @@ fun PastTripsContent(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = "${pastTrips.size} past trip(s) shown",
+                text = "${expenses.size} expense(s) shown",
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -194,23 +187,23 @@ fun PastTripsContent(
 
         HorizontalDivider()
 
-        // ── Past Trips list — key = stable ID, not position ──
+        // ── Expense list — key = stable ID, not position ──
         LazyColumn(
             modifier = Modifier.weight(1f),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            items(pastTrips, key = { it.id }) { pastTrips ->
-                PastTripRow(
-                    pastTrip = pastTrips,
+            items(expenses, key = { it.id }) { expense ->
+                ExpenseRow(
+                    expense = expense,
                     onToggleComplete = onToggleComplete,
-                    onDelete = onDeleteTrip
+                    onDelete = onDeleteExpense
                 )
             }
 
-            if (pastTrips.isEmpty()) {
+            if (expenses.isEmpty()) {
                 item {
                     Text(
-                        text = "No past Trips found.",
+                        text = "No expenses found.",
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.padding(16.dp)
@@ -221,25 +214,25 @@ fun PastTripsContent(
 
         HorizontalDivider()
 
-        // ── Add new past Trip ──
+        // ── Add new Expense ──
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             OutlinedTextField(
-                value = newPastTripText,
-                onValueChange = { newPastTripText = it },
-                label = { Text("New past Trip") },
+                value = newExpenseText,
+                onValueChange = { newExpenseText = it },
+                label = { Text("New Expense") },
                 singleLine = true,
                 modifier = Modifier.weight(1f)
             )
             Button(
                 onClick = {
-                    onAddTrip(newPastTripText)
-                    newPastTripText = ""
+                    onAddExpense(newExpenseText)
+                    newExpenseText = ""
                 },
-                enabled = newPastTripText.isNotBlank()
+                enabled = newExpenseText.isNotBlank()
             ) {
                 Text("Add")
             }
@@ -259,36 +252,18 @@ fun PastTripsContent(
     }
 }
 
-// ─────────────────────────────────────────────────────────────
-// STATELESS SEARCH BAR
-// ─────────────────────────────────────────────────────────────
-@Composable
-fun SearchBar(
-    query: String,
-    onQueryChange: (String) -> Unit,
-    modifier: Modifier = Modifier
-) {
-    OutlinedTextField(
-        value = query,
-        onValueChange = onQueryChange,
-        label = { Text("Search past Trips") },
-        singleLine = true,
-        modifier = modifier.fillMaxWidth()
-    )
-}
-
 // STATELESS TASK ROW
 @Composable
-fun PastTripRow(
-    pastTrip: PastTripItem,
-    onToggleComplete: (PastTripItem) -> Unit,
-    onDelete: (PastTripItem) -> Unit,
+fun ExpenseRow(
+    expense: ExpenseItem,
+    onToggleComplete: (ExpenseItem) -> Unit,
+    onDelete: (ExpenseItem) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Card(
         modifier = modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(
-            containerColor = if (pastTrip.isPaid)
+            containerColor = if (expense.isPaid)
                 MaterialTheme.colorScheme.surfaceVariant
             else
                 MaterialTheme.colorScheme.surface
@@ -307,26 +282,26 @@ fun PastTripRow(
                 modifier = Modifier.weight(1f)
             ) {
                 Checkbox(
-                    checked = pastTrip.isPaid,
-                    onCheckedChange = { onToggleComplete(pastTrip) }
+                    checked = expense.isPaid,
+                    onCheckedChange = { onToggleComplete(expense) }
                 )
                 Column {
                     Text(
-                        text = pastTrip.title,
+                        text = expense.title,
                         style = MaterialTheme.typography.bodyLarge,
-                        color = if (pastTrip.isPaid)
+                        color = if (expense.isPaid)
                             MaterialTheme.colorScheme.onSurfaceVariant
                         else
                             MaterialTheme.colorScheme.onSurface
                     )
                     Text(
-                        text = pastTrip.categories.joinToString(", "),
+                        text = expense.categories.joinToString(", "),
                         fontSize = 11.sp,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
             }
-            IconButton(onClick = { onDelete(pastTrip) }) {
+            IconButton(onClick = { onDelete(expense) }) {
                 Icon(
                     imageVector = Icons.Default.Delete,
                     contentDescription = "Delete",
@@ -339,10 +314,10 @@ fun PastTripRow(
 
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
-fun PastTripsPreview() {
+fun CurrentTripPreview() {
     MaterialTheme {
         Surface(modifier = Modifier.fillMaxSize()) {
-            PastTripScreen()
+            CurrentTripScreen()
         }
     }
 }

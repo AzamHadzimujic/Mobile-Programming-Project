@@ -1,4 +1,4 @@
-package presentation.ui.screens.screen5.screen
+package presentation.ui.screens
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column

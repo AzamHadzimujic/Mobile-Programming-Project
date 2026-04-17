@@ -2,22 +2,20 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import presentation.ui.screens.screen1.screen.Homescreen
-import presentation.ui.screens.screen2.screen.CurrentTripScreen
-import presentation.ui.screens.screen3.screen.AddExpenseScreen
-import presentation.ui.screens.screen4.screen.PastTripScreen
-import presentation.ui.screens.screen5.screen.LoginScreen
+import androidx.navigation.compose.rememberNavController
+import presentation.navigation.NavGraph
+import presentation.navigation.Screen
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            Homescreen()
-            CurrentTripScreen()
-            AddExpenseScreen()
-            PastTripScreen()
-            LoginScreen()
+            val navController = rememberNavController()
+            NavGraph(
+                navController = navController,
+                startDestination = Screen.LoginScreen.route
+            )
         }
     }
 }
