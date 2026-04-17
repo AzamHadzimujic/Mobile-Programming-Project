@@ -39,17 +39,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-
-// DATA CLASS
-// ✅ @Stable — helps Compose skip unnecessary recompositions
-@Stable
-data class ExpenseItem(
-    val id: Int,
-    val title: String,
-    val isPaid: Boolean = false,
-    val categories: List<String>,
-    val amount: Int
-)
+import model.ExpenseItem
 
 // STATEFUL SCREEN — single source of truth for all state
 @Composable

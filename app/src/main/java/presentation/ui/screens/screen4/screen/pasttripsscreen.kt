@@ -24,7 +24,6 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.Stable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
@@ -39,18 +38,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-
-// DATA MODEL
-// ✅ @Stable — helps Compose skip unnecessary recompositions
-@Stable
-data class PastTripItem(
-    val id: Int,
-    val title: String,
-    val isPaid: Boolean = false,
-    val categories: List<String>,
-    val amount: Int,
-    val date: String
-)
+import model.PastTripItem
 
 // STATEFUL SCREEN — single source of truth for all state
 @Composable

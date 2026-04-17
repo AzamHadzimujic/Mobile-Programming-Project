@@ -1,9 +1,11 @@
-package presentation.ui.sharedComponents
+package presentation.ui.components
 
 import android.widget.Toast
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
@@ -16,6 +18,8 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight.Companion.ExtraBold
 import androidx.compose.runtime.*
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 
 // --- BUTTON FOR SAVE ---
 @Composable
@@ -197,7 +201,7 @@ fun SwitchNotification() {
             verticalAlignment = Alignment.CenterVertically
         ){
             Text(
-            "Receive alerts for messages",
+            "Receive alerts for messages    ",
                 style = MaterialTheme.typography.bodyLarge,
                 fontWeight = ExtraBold,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -227,4 +231,21 @@ fun InputField(label: String, value: String, onChange: (String) -> Unit) {
         label = { Text(label) },
         modifier = Modifier.fillMaxWidth()
     )
+}
+// --- SIMPLE INFO BOX FOR DISPLAYING TEXT ---
+@Composable
+fun InfoBox(
+    text: String,
+    backgroundColor: Color,
+    modifier: Modifier = Modifier
+) {
+    Box(
+        modifier = modifier
+            .padding(8.dp)
+            .clip(RoundedCornerShape(12.dp))
+            .background(backgroundColor)
+            .padding(16.dp)
+    ) {
+        Text(text)
+    }
 }

@@ -18,8 +18,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import presentation.ui.sharedComponents.ButtonSave
-import presentation.ui.sharedComponents.InputField
+import presentation.ui.components.ButtonSave
+import presentation.ui.components.InputField
 
 @Composable
 fun AddExpenseScreen() {
