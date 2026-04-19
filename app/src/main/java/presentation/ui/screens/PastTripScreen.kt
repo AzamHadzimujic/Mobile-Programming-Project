@@ -1,5 +1,6 @@
 package presentation.ui.screens
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -43,7 +44,9 @@ import presentation.ui.components.SearchBar
 
 // STATEFUL SCREEN — single source of truth for all state
 @Composable
-fun PastTripScreen() {
+fun PastTripScreen(
+    onTripClick: (Int) -> Unit
+) {
 
     // ✅ mutableStateListOf — observable list
     val pastTripItems = remember {
@@ -116,7 +119,8 @@ fun PastTripScreen() {
         onToggleComplete = onToggleComplete,
         onDeleteTrip = onDeleteTrip,
         onAddTrip = onAddTrip,
-        onClearCompleted = { pastTripItems.removeAll { it.isPaid } }
+        onClearCompleted = { pastTripItems.removeAll { it.isPaid } },
+        onTripClick = onTripClick
     )
 }
 
@@ -138,6 +142,7 @@ fun PastTripsContent(
     onDeleteTrip: (PastTripItem) -> Unit,
     onAddTrip: (String) -> Unit,
     onClearCompleted: () -> Unit,
+    onTripClick: (Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
     // ✅ remember — local UI state scoped only to this composable
@@ -204,7 +209,8 @@ fun PastTripsContent(
                 PastTripRow(
                     pastTrip = pastTrips,
                     onToggleComplete = onToggleComplete,
-                    onDelete = onDeleteTrip
+                    onDelete = onDeleteTrip,
+                    onClick = {onTripClick(pastTrips.id)}
                 )
             }
 
@@ -266,10 +272,13 @@ fun PastTripRow(
     pastTrip: PastTripItem,
     onToggleComplete: (PastTripItem) -> Unit,
     onDelete: (PastTripItem) -> Unit,
+    onClick: (PastTripItem) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Card(
-        modifier = modifier.fillMaxWidth(),
+        Card(
+            modifier = modifier
+                .fillMaxWidth()
+                .clickable { onClick(pastTrip) },
         colors = CardDefaults.cardColors(
             containerColor = if (pastTrip.isPaid)
                 MaterialTheme.colorScheme.surfaceVariant

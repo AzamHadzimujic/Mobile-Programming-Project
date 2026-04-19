@@ -20,6 +20,7 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import presentation.navigation.BottomBarNavigationItem
 
 // --- BUTTON FOR SAVE ---
 @Composable
@@ -176,9 +177,9 @@ fun TermsCheckbox() {
                 thumbContent = {
                     Icon(
                         imageVector = if (darkModeEnabled)
-                            Icons.Filled.Check
+                            Icons.Default.Check
                         else
-                            Icons.Filled.Close,
+                            Icons.Default.Close,
                         contentDescription = null,
                         modifier = Modifier.size(SwitchDefaults.IconSize)
                     )
@@ -249,7 +250,7 @@ fun InfoBox(
         Text(text)
     }
 }
-// STATELESS SEARCH BAR
+// --- STATELESS SEARCH BAR ---
 @Composable
 fun SearchBar(
     query: String,
@@ -263,4 +264,31 @@ fun SearchBar(
         singleLine = true,
         modifier = modifier.fillMaxWidth()
     )
+}
+// --- BOTTOM BAR COMPONENT ---
+@Composable
+fun BottomBarNavigationComponent(
+    items: List<BottomBarNavigationItem>,
+    selectedItemIndex: Int,
+    onItemSelected: (Int) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    NavigationBar(modifier = modifier) {
+        items.forEachIndexed { index, item ->
+
+            NavigationBarItem(
+                selected = selectedItemIndex == index,
+                onClick = { onItemSelected(index) },
+                icon = {
+                    Icon(
+                        imageVector = item.icon,
+                        contentDescription = item.title
+                    )
+                },
+                label = {
+                    Text(text = item.title)
+                }
+            )
+        }
+    }
 }

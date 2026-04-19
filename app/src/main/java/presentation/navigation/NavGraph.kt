@@ -24,19 +24,21 @@ fun NavGraph(
         startDestination = startDestination,
         modifier = modifier
     ) {
-
         composable(Screen.LoginScreen.route) {
             LoginScreen(
                 onNavigateToHomeScreen = {
-                    navController.navigate(Screen.HomeScreen.route)
+                    navController.navigate(Screen.HomeScreen.route) {
+                        popUpTo(Screen.LoginScreen.route) {
+                            inclusive = true
+                        }
+                    }
                 }
             )
         }
-
         composable(Screen.HomeScreen.route) {
             Homescreen(
                 onNavigateToCurrentTripScreen = {
-                    navController.navigate(Screen.CurrentTrip.route)
+                    navController.navigate(Screen.CurrentTrip.createRoute("1"))
                 },
                 onNavigateToPastTripScreen = {
                     navController.navigate(Screen.PastTrip.route)
@@ -46,37 +48,34 @@ fun NavGraph(
                 }
             )
         }
-
         composable(
             route = Screen.AddExpense.route,
             arguments = listOf(
                 navArgument("tripId") { type = NavType.StringType }
             )
         ) { backStackEntry ->
-
             val tripId = backStackEntry.arguments?.getString("tripId")
-
             AddExpenseScreen(
-                onNavigateToCurrentTripScreen = {
-                    navController.navigate(Screen.CurrentTrip.createRoute(tripId ?: "0"))
+                onNavigateBack = {
+                    navController.popBackStack()
                 }
             )
         }
-
         composable(
             route = Screen.CurrentTrip.route,
             arguments = listOf(
                 navArgument("tripId") { type = NavType.StringType }
             )
         ) { backStackEntry ->
-
             val tripId = backStackEntry.arguments?.getString("tripId")
-
-            CurrentTripScreen()
+            CurrentTripScreen(tripId = tripId ?: "0")
         }
-
         composable(Screen.PastTrip.route) {
-            PastTripScreen()
+            PastTripScreen(
+                onTripClick = { tripId ->
+                    navController.navigate(Screen.CurrentTrip.createRoute(tripId.toString()))
+                }
+            )
         }
     }
 }

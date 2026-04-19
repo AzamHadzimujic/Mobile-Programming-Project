@@ -43,8 +43,7 @@ import presentation.ui.components.SearchBar
 
 // STATEFUL SCREEN — single source of truth for all state
 @Composable
-fun CurrentTripScreen() {
-
+fun CurrentTripScreen(tripId: String) {
     // ✅ mutableStateListOf — observable list
     val expenseItems = remember {
         mutableStateListOf(
