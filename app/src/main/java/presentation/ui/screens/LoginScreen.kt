@@ -1,4 +1,4 @@
-package presentation.ui.screens.screen5.screen
+package presentation.ui.screens
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -19,12 +19,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import presentation.ui.sharedComponents.ButtonCancel
-import presentation.ui.sharedComponents.ButtonSave
-import presentation.ui.sharedComponents.InputField
-import presentation.ui.sharedComponents.RadioButton
-import presentation.ui.sharedComponents.SwitchDarkMode
-import presentation.ui.sharedComponents.SwitchNotification
+import presentation.ui.components.ButtonCancel
+import presentation.ui.components.ButtonSave
+import presentation.ui.components.InputField
+import presentation.ui.components.RadioButton
+import presentation.ui.components.SwitchDarkMode
+import presentation.ui.components.SwitchNotification
 
 @Composable
 fun LoginScreen() {

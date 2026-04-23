@@ -1,4 +1,4 @@
-package presentation.ui.screens.screen3.screen
+package presentation.ui.screens
 
 import android.widget.Toast
 import androidx.compose.foundation.layout.Column
@@ -16,17 +16,26 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import presentation.ui.sharedComponents.ButtonSave
-import presentation.ui.sharedComponents.InputField
+import presentation.ui.components.ButtonSave
+import presentation.ui.components.InputField
 
 @Composable
-fun AddExpenseScreen() {
+fun AddExpenseScreen(
+    onNavigateBack: () -> Unit
+) {
     var title by remember { mutableStateOf("") }
     var amount by remember { mutableStateOf("") }
     var category by remember { mutableStateOf("") }
     var date by remember { mutableStateOf("") }
+    val isFormValid = remember {
+        androidx.compose.runtime.derivedStateOf {
+            title.isNotBlank() &&
+                    amount.isNotBlank() &&
+                    category.isNotBlank() &&
+                    date.isNotBlank()
+        }
+    }
     val context = LocalContext.current
     Column(
         modifier = Modifier
@@ -49,21 +58,16 @@ fun AddExpenseScreen() {
             }
             item {
                 ButtonSave({
-                    if (title.isBlank() || amount.isBlank() || category.isBlank() || date.isBlank()) {
+                    if (!isFormValid.value) {
                         Toast.makeText(context, "Please fill all fields", Toast.LENGTH_SHORT).show()
+                    } else {
+                        Toast.makeText(context, "Expense saved", Toast.LENGTH_SHORT).show()
+                        onNavigateBack()
                     }
                 },
                     modifier = Modifier.weight(1f)
                 )
             }
         }
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun PreviewScreen3() {
-    MaterialTheme {
-        AddExpenseScreen()
     }
 }
