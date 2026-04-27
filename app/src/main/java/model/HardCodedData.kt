@@ -1,5 +1,5 @@
 package model
-
+//hardcoded data
 import androidx.compose.runtime.Stable
 
 @Stable
