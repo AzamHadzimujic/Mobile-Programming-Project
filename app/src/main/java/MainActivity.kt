@@ -7,11 +7,12 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import dagger.hilt.android.AndroidEntryPoint
 import presentation.navigation.BottomBarNavigationItems
 import presentation.navigation.NavGraph
 import presentation.navigation.Screen
 import presentation.ui.components.BottomBarNavigationComponent
-
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
