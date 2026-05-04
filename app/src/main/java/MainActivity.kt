@@ -12,6 +12,7 @@ import presentation.navigation.BottomBarNavigationItems
 import presentation.navigation.NavGraph
 import presentation.navigation.Screen
 import presentation.ui.components.BottomBarNavigationComponent
+
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {

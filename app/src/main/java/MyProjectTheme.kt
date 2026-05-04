@@ -3,5 +3,4 @@ import dagger.hilt.android.HiltAndroidApp
 
 @HiltAndroidApp
 class MyProjectTheme : Application() {
-
 }
