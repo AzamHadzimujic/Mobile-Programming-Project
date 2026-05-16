@@ -1,4 +1,4 @@
-package presentation.viewmodel.auth.login
+package presentation.viewmodel.auth
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -20,17 +20,17 @@ class LoginViewModel @Inject constructor() : ViewModel() {
     private val _navigationEvent = Channel<LoginNavigationEvent>(Channel.BUFFERED)
     val navigationEvent = _navigationEvent.receiveAsFlow()
 
-    fun onLoginClick(email: String, password: String) {
+    fun onLoginClick(username: String, password: String) {
         viewModelScope.launch {
             _uiState.value = LoginUiState.Loading
 
             delay(1500)
 
-            if (email == "test@gmail.com" && password == "123456") {
+            if (username == "admin" && password == "123456") {
                 _uiState.value = LoginUiState.Success(isLoggedIn = true)
                 _navigationEvent.send(LoginNavigationEvent.Navigate)
             } else {
-                _uiState.value = LoginUiState.Error("Invalid email or password")
+                _uiState.value = LoginUiState.Error("Invalid username or password")
             }
         }
     }

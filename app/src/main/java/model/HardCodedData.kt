@@ -4,19 +4,23 @@ import androidx.compose.runtime.Stable
 
 @Stable
 data class ExpenseItem(
-    val id: Int,
+    val id: String,
     val title: String,
-    val isPaid: Boolean = false,
-    val categories: List<String>,
-    val amount: Int
+    val categories: String,
+    val amount: String
 )
 
 @Stable
 data class PastTripItem(
-    val id: Int,
+    val id: String,
     val title: String,
-    val isPaid: Boolean = false,
-    val categories: List<String>,
-    val amount: Int,
+    val categories: String,
+    val amount: String,
     val date: String
+)
+
+@Stable
+data class ScreenShortcutData(
+    val title: String,
+    val route: String
 )
