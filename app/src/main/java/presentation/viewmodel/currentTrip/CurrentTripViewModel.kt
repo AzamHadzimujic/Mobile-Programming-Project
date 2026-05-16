@@ -22,6 +22,7 @@ class CurrentTripViewModel @Inject constructor() : ViewModel() {
     private var searchQuery = ""
 
     init {
+        val tripId = ""
         loadInitialExpenses(tripId)
     }
 
