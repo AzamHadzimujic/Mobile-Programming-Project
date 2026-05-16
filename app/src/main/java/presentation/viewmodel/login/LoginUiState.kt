@@ -1,4 +1,4 @@
-package presentation.viewmodel.auth
+package presentation.viewmodel.login
 
 sealed interface LoginUiState {
     data object Init : LoginUiState

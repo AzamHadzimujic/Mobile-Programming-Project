@@ -10,13 +10,13 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.runtime.Composable
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -28,19 +28,24 @@ import presentation.ui.components.LoadingScreen
 import presentation.ui.components.RadioButton
 import presentation.ui.components.SwitchDarkMode
 import presentation.ui.components.SwitchNotification
-import presentation.viewmodel.auth.LoginNavigationEvent
-import presentation.viewmodel.auth.LoginUiState
+import presentation.viewmodel.login.LoginNavigationEvent
+import presentation.viewmodel.login.LoginUiState
+import presentation.viewmodel.login.LoginViewModel
 
 @Composable
 fun LoginScreen(
-    viewModel: presentation.viewmodel.auth.LoginViewModel,
+    viewModel: LoginViewModel,
     onNavigate: () -> Unit
 ) {
     val uiState by viewModel
         .uiState
         .collectAsStateWithLifecycle()
-    var username by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
+    var username by remember {
+        mutableStateOf("")
+    }
+    var password by remember {
+        mutableStateOf("")
+    }
     LaunchedEffect(Unit) {
         viewModel.navigationEvent.collect { event ->
             when (event) {
@@ -59,7 +64,9 @@ fun LoginScreen(
         }
         is LoginUiState.Error -> {
             ErrorScreen(
-                message = (uiState as LoginUiState.Error).message
+                message =
+                    (uiState as LoginUiState.Error)
+                        .message
             )
         }
         else -> {
@@ -70,11 +77,18 @@ fun LoginScreen(
                 onPasswordChange = {},
                 onLoginClick = {
                     if (
-                        username.isEmpty() ||
-                        password.length < 8
+                        username.isBlank() ||
+                        password.isBlank()
                     ) {
-                        println("Invalid input")
+                        return@LoginScreenContent
                     }
+                    viewModel.onLoginClick(
+                        username = username,
+                        password = password
+                    )
+                },
+                onCancelClick = {
+                    viewModel.resetUiState()
                 }
             )
         }
@@ -86,7 +100,8 @@ fun LoginScreenContent(
     password: String,
     onUsernameChange: (String) -> Unit,
     onPasswordChange: (String) -> Unit,
-    onLoginClick: () -> Unit
+    onLoginClick: () -> Unit,
+    onCancelClick: () -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -94,11 +109,14 @@ fun LoginScreenContent(
             .padding(16.dp)
     ) {
         Text(
-            text = "On this screen you can log in into your account!",
-            style = MaterialTheme.typography.headlineSmall
+            text =
+                "On this screen you can log in into your account!",
+            style =
+                MaterialTheme.typography.headlineSmall
         )
         Spacer(
-            modifier = Modifier.height(16.dp)
+            modifier =
+                Modifier.height(16.dp)
         )
         LazyColumn(
             modifier = Modifier
@@ -107,17 +125,20 @@ fun LoginScreenContent(
         ) {
             item {
                 InputField(
-                    "Username",
-                    username,
-                    onUsernameChange
+                    label = "Username",
+                    value = username,
+                    onChange =
+                        onUsernameChange
                 )
                 InputField(
-                    "Password",
-                    password,
-                    onPasswordChange
+                    label = "Password",
+                    value = password,
+                    onChange =
+                        onPasswordChange
                 )
                 Spacer(
-                    modifier = Modifier.height(16.dp)
+                    modifier =
+                        Modifier.height(16.dp)
                 )
             }
             item {
@@ -131,16 +152,20 @@ fun LoginScreenContent(
             }
             item {
                 Row(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier =
+                        Modifier.fillMaxWidth(),
                     horizontalArrangement =
                         Arrangement.spacedBy(8.dp)
                 ) {
                     ButtonSave(
                         onClick = onLoginClick,
-                        modifier = Modifier.weight(1f)
+                        modifier =
+                            Modifier.weight(1f)
                     )
                     ButtonCancel(
-                        modifier = Modifier.weight(1f)
+                        onClick = onCancelClick,
+                        modifier =
+                            Modifier.weight(1f)
                     )
                 }
             }

@@ -1,101 +1,67 @@
 package presentation.viewmodel.currentTrip
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
-import model.ExpenseItem
+import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.launch
+import model.data.local.entity.ExpenseEntity
+import model.repository.expense.ExpenseRepository
 import javax.inject.Inject
 
 @HiltViewModel
-class CurrentTripViewModel @Inject constructor() : ViewModel() {
-
-    private val _uiState = MutableStateFlow<CurrentTripUiState>(
-        CurrentTripUiState.Loading
-    )
-    val uiState: StateFlow<CurrentTripUiState> = _uiState.asStateFlow()
-
-    private val expenses = MutableStateFlow<List<ExpenseItem>>(emptyList())
-
+class CurrentTripViewModel @Inject constructor(
+    private val repository: ExpenseRepository
+) : ViewModel() {
+    private val _uiState =
+        MutableStateFlow<CurrentTripUiState>(
+            CurrentTripUiState.Loading
+        )
+    val uiState: StateFlow<CurrentTripUiState> =
+        _uiState.asStateFlow()
     private var searchQuery = ""
-
     init {
-        val tripId = ""
-        loadInitialExpenses(tripId)
+        observeExpenses()
     }
-
-    // ─────────────────────────────
-    // INIT DATA
-    // ─────────────────────────────
-    fun loadInitialExpenses(tripId: String) {
-        expenses.value = listOf(
-            ExpenseItem("1", "DoorDash delivery", "Food", "25"),
-            ExpenseItem("2", "Museum Visit", "Culture", "30"),
-            ExpenseItem("3", "Lunch at the beach", "Food", "150"),
-            ExpenseItem("4", "Public Transport", "Transport", "10"),
-        )
-
-        publishState()
-    }
-
-    // ─────────────────────────────
-    // ADD EXPENSE
-    // ─────────────────────────────
-    fun addExpense(title: String) {
-        val newItem = ExpenseItem(
-            id = generateId(),
-            title = title,
-            categories = "New",
-            amount = "0"
-        )
-
-        expenses.update { it + newItem }
-        publishState()
-    }
-
-    // ─────────────────────────────
-    // DELETE EXPENSE
-    // ─────────────────────────────
-    fun deleteExpense(id: String) {
-        expenses.update { list ->
-            list.filterNot { it.id == id }
+    private fun observeExpenses() {
+        viewModelScope.launch {
+            repository.getAllExpenses()
+                .collect { expenses ->
+                    publishState(expenses)
+                }
         }
-        publishState()
     }
-
-    // ─────────────────────────────
-    // SEARCH
-    // ─────────────────────────────
+    fun deleteExpense(expense: ExpenseEntity) {
+        viewModelScope.launch {
+            repository.deleteExpense(expense)
+        }
+    }
     fun updateSearch(query: String) {
         searchQuery = query
-        publishState()
-    }
-
-    // ─────────────────────────────
-    // STATE BUILDER
-    // ─────────────────────────────
-    private fun publishState() {
-        val filtered = expenses.value.filter { expense ->
-            expense.title.contains(searchQuery, ignoreCase = true)
+        viewModelScope.launch {
+            repository.getAllExpenses()
+                .first()
+                .let { publishState(it) }
         }
-
-        _uiState.value = CurrentTripUiState.Success(
-            searchQuery = searchQuery,
-            expenses = filtered
-        )
     }
+    private fun publishState(
+        expenses: List<ExpenseEntity>
+    ) {
+        val filtered =
+            expenses.filter { expense ->
 
-    // ─────────────────────────────
-    // RESET
-    // ─────────────────────────────
+                expense.title.contains(
+                    searchQuery,
+                    ignoreCase = true
+                )
+            }
+        _uiState.value =
+            CurrentTripUiState.Success(
+                searchQuery = searchQuery,
+                expenses = filtered
+            )
+    }
     fun resetUiState() {
         searchQuery = ""
-        publishState()
-    }
-
-    private fun generateId(): String {
-        return (expenses.value.size + 1).toString()
     }
 }

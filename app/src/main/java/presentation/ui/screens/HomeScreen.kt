@@ -4,16 +4,17 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import model.ScreenShortcutData
 import presentation.ui.R
 import presentation.ui.components.ErrorScreen
 import presentation.ui.components.InfoBox
@@ -37,16 +38,23 @@ fun Homescreen(
         }
         is HomeShortcutUiState.Error -> {
             ErrorScreen(
-                message = (uiState as HomeShortcutUiState.Error).message
+                message =
+                    (uiState as HomeShortcutUiState.Error)
+                        .message
             )
         }
         is HomeShortcutUiState.Success -> {
-            val state = uiState as HomeShortcutUiState.Success
+            val state =
+                uiState as HomeShortcutUiState.Success
             HomescreenContent(
-                searchQuery = state.searchQuery,
-                shortcuts = state.shortcuts,
-                onSearchQueryChange = {},
-                onScreenClick = onScreenClick
+                searchQuery =
+                    state.searchQuery,
+                shortcuts =
+                    state.shortcuts,
+                onSearchQueryChange =
+                    viewModel::onSearchQueryChange,
+                onScreenClick =
+                    onScreenClick
             )
         }
         HomeShortcutUiState.Init -> {
@@ -57,16 +65,23 @@ fun Homescreen(
 @Composable
 fun HomescreenContent(
     searchQuery: String,
-    shortcuts: List<ScreenShortcutData>,
+    shortcuts: List<model.ScreenShortcutData>,
     onSearchQueryChange: (String) -> Unit,
     onScreenClick: (String) -> Unit
 ) {
-    Box(modifier = Modifier.fillMaxSize()) {
+    Box(
+        modifier = Modifier.fillMaxSize()
+    ) {
         Image(
-            painter = painterResource(id = R.drawable.vacation1),
+            painter =
+                painterResource(
+                    id = R.drawable.vacation1
+                ),
             contentDescription = null,
-            modifier = Modifier.fillMaxSize(),
-            contentScale = ContentScale.Crop
+            modifier =
+                Modifier.fillMaxSize(),
+            contentScale =
+                ContentScale.Crop
         )
         Column(
             modifier = Modifier
@@ -74,48 +89,79 @@ fun HomescreenContent(
                 .padding(16.dp)
         ) {
             Text(
-                text = "Welcome to Trip Budget Planner",
-                style = MaterialTheme.typography.headlineSmall
+                text =
+                    "Welcome to Trip Budget Planner",
+                style =
+                    MaterialTheme.typography.headlineSmall
             )
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(
+                modifier =
+                    Modifier.height(16.dp)
+            )
             InputField(
-                "Search shortcuts",
-                searchQuery,
-                onSearchQueryChange
+                label = "Search shortcuts",
+                value = searchQuery,
+                onChange =
+                    onSearchQueryChange
             )
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(
+                modifier =
+                    Modifier.height(16.dp)
+            )
             LazyColumn {
                 item {
-                    LazyRow {
-                        shortcuts.take(2).forEach { item ->
-                            item {
-                                InfoBox(
-                                    text = item.title,
-                                    backgroundColor = Color.Green,
-                                    onClick = {
-                                        onScreenClick(item.route)
-                                    }
-                                )
-                            }
+                    LazyRow(
+                        horizontalArrangement =
+                            Arrangement.spacedBy(8.dp)
+                    ) {
+                        items(
+                            shortcuts.take(2)
+                        ) { shortcut ->
+                            InfoBox(
+                                text = shortcut.title,
+                                backgroundColor =
+                                    Color.Green,
+                                onClick = {
+                                    onScreenClick(
+                                        shortcut.route
+                                    )
+                                }
+                            )
                         }
                     }
                 }
                 item {
-                    LazyRow {
-                        shortcuts.drop(2).take(2).forEach { item ->
-                            item {
-                                InfoBox(
-                                    text = item.title,
-                                    backgroundColor = Color.Magenta,
-                                    onClick = {
-                                        onScreenClick(item.route)
-                                    }
-                                )
-                            }
+                    Spacer(
+                        modifier =
+                            Modifier.height(12.dp)
+                    )
+                    LazyRow(
+                        horizontalArrangement =
+                            Arrangement.spacedBy(8.dp)
+                    ) {
+                        items(
+                            shortcuts.drop(2).take(2)
+                        ) { shortcut ->
+                            InfoBox(
+                                text = shortcut.title,
+                                backgroundColor =
+                                    Color.Magenta,
+                                onClick = {
+
+                                    onScreenClick(
+                                        shortcut.route
+                                    )
+                                }
+                            )
                         }
                     }
                 }
+                // SWITCH
                 item {
+                    Spacer(
+                        modifier =
+                            Modifier.height(16.dp)
+                    )
                     SwitchNotification()
                 }
             }

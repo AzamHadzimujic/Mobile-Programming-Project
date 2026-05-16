@@ -1,59 +1,86 @@
 package presentation.viewmodel.pastTrip
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import jakarta.inject.Inject
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import model.PastTripItem
+import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.launch
+import model.data.local.entity.PastTripEntity
+import model.repository.pasttrip.PastTripRepository
+import javax.inject.Inject
 
 @HiltViewModel
-class PastTripViewModel @Inject constructor() : ViewModel() {
-
-    private val _pastTrips = MutableStateFlow(
-        listOf(
-            PastTripItem("1", "Italy Trip", "Food, Culture", "250", "March 2022"),
-            PastTripItem("2", "Germany Trip", "History, Nature", "300", "May 2023"),
-            PastTripItem("3", "Japan Trip", "Culture, History", "680", "June 2021"),
-            PastTripItem("4", "Brazil Trip", "Food, Nature", "740", "January 2026"),
+class PastTripViewModel @Inject constructor(
+    private val repository: PastTripRepository
+) : ViewModel() {
+    private val _uiState =
+        MutableStateFlow<PastTripUiState>(
+            PastTripUiState.Loading
         )
-    )
-
-    val pastTrips = _pastTrips.asStateFlow()
-
-    private val _searchQuery = MutableStateFlow("")
-    val searchQuery = _searchQuery.asStateFlow()
-
-    private val _showAll = MutableStateFlow(true)
-    val showAll = _showAll.asStateFlow()
-
-    fun onSearchQueryChange(query: String) {
-        _searchQuery.value = query
+    val uiState =
+        _uiState.asStateFlow()
+    private var searchQuery = ""
+    init {
+        observeTrips()
     }
-
-    fun toggleShowAll() {
-        _showAll.value = !_showAll.value
+    private fun observeTrips() {
+        viewModelScope.launch {
+            repository.getAllTrips()
+                .collect { trips ->
+                    publishState(trips)
+                }
+        }
     }
-
+    fun updateSearch(query: String) {
+        searchQuery = query
+        viewModelScope.launch {
+            repository.getAllTrips()
+                .first()
+                .let { publishState(it) }
+        }
+    }
     fun addTrip(title: String) {
-
-        val newId = (_pastTrips.value.size + 1).toString()
-
-        _pastTrips.value += PastTripItem(
-                    id = newId,
+        viewModelScope.launch {
+            repository.insertTrip(
+                PastTripEntity(
                     title = title,
                     categories = "New",
                     amount = "0",
                     date = "Now"
                 )
+            )
+        }
     }
-
-    fun deleteTrip(id: String) {
-        _pastTrips.value = _pastTrips.value.filter {
-            it.id != id
+    fun deleteTrip(
+        trip: PastTripEntity
+    ) {
+        viewModelScope.launch {
+            repository.deleteTrip(trip)
         }
     }
     fun clearAll() {
-        _pastTrips.value = emptyList()
+        viewModelScope.launch {
+            repository.getAllTrips()
+                .first()
+                .forEach {
+                    repository.deleteTrip(it)
+                }
+        }
+    }
+    private fun publishState(
+        trips: List<PastTripEntity>
+    ) {
+        val filtered =
+            trips.filter {
+                it.title.contains(
+                    searchQuery,
+                    ignoreCase = true
+                )
+            }
+        _uiState.value =
+            PastTripUiState.Success(
+                searchQuery = searchQuery,
+                pastTrips = filtered
+            )
     }
 }

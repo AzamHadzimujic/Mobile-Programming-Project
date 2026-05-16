@@ -1,64 +1,43 @@
 package presentation.viewmodel.home
 
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import jakarta.inject.Inject
-import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.receiveAsFlow
-import kotlinx.coroutines.launch
 import model.ScreenShortcutData
 import presentation.navigation.Screen
+import javax.inject.Inject
 
 @HiltViewModel
 class HomeShortcutViewModel @Inject constructor() :
     ViewModel() {
+    private val allShortcuts = listOf(
+        ScreenShortcutData(
+            title = "Current Trip",
+            route = Screen.CurrentTrip.route
+        ),
+        ScreenShortcutData(
+            title = "Add Expense",
+            route = Screen.AddExpense.route
+        ),
+        ScreenShortcutData(
+            title = "Past Trips",
+            route = Screen.PastTrip.route
+        ),
+        ScreenShortcutData(
+            title = "Login",
+            route = Screen.LoginScreen.route
+        )
+    )
     private val _uiState =
         MutableStateFlow<HomeShortcutUiState>(
-            HomeShortcutUiState.Init
+            HomeShortcutUiState.Success(
+                searchQuery = "",
+                shortcuts = allShortcuts
+            )
         )
     val uiState =
         _uiState.asStateFlow()
-    private val _navigationEvent =
-        Channel<HomeShortcutNavigationEvent>(
-            Channel.BUFFERED
-        )
-    val navigationEvent =
-        _navigationEvent.receiveAsFlow()
-    private val allShortcuts = listOf(
-        ScreenShortcutData(
-            "Current Trip",
-            Screen.CurrentTrip.route
-        ),
-        ScreenShortcutData(
-            "Add Expense",
-            Screen.AddExpense.route
-        ),
-        ScreenShortcutData(
-            "Past Trips",
-            Screen.PastTrip.route
-        ),
-        ScreenShortcutData(
-            "Login",
-            Screen.LoginScreen.route
-        )
-    )
-    init {
-        loadShortcuts()
-    }
-    fun loadShortcuts() {
-        viewModelScope.launch {
-            _uiState.value =
-                HomeShortcutUiState.Loading
-            _uiState.value =
-                HomeShortcutUiState.Success(
-                    searchQuery = "",
-                    shortcuts = allShortcuts
-                )
-        }
-    }
     fun onSearchQueryChange(
         query: String
     ) {
@@ -76,6 +55,10 @@ class HomeShortcutViewModel @Inject constructor() :
             )
     }
     fun resetUiState() {
-        loadShortcuts()
+        _uiState.value =
+            HomeShortcutUiState.Success(
+                searchQuery = "",
+                shortcuts = allShortcuts
+            )
     }
 }
