@@ -238,7 +238,8 @@ fun InputField(label: String, value: String, onChange: (String) -> Unit) {
 fun InfoBox(
     text: String,
     backgroundColor: Color,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit
 ) {
     Box(
         modifier = modifier
@@ -246,6 +247,7 @@ fun InfoBox(
             .clip(RoundedCornerShape(12.dp))
             .background(backgroundColor)
             .padding(16.dp)
+            .clickable{ onClick() }
     ) {
         Text(text)
     }
@@ -289,6 +291,56 @@ fun BottomBarNavigationComponent(
                     Text(text = item.title)
                 }
             )
+        }
+    }
+}
+// --- LOADING AND ERROR SCREENS
+@Composable
+fun LoadingScreen() {
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(24.dp),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        CircularProgressIndicator()
+        Spacer(modifier = Modifier.height(16.dp))
+        Text(
+            text = "Loading...",
+            style = MaterialTheme.typography.titleMedium
+        )
+    }
+}
+@Composable
+fun ErrorScreen(
+    message: String,
+    onRetryClick: (() -> Unit)? = null
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(24.dp),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            text = "Something went wrong",
+            style = MaterialTheme.typography.headlineSmall
+        )
+        Spacer(modifier = Modifier.height(12.dp))
+        Text(
+            text = message,
+            style = MaterialTheme.typography.bodyLarge
+        )
+        if (onRetryClick != null) {
+            Spacer(modifier = Modifier.height(20.dp))
+            Button(
+                onClick = onRetryClick
+            ) {
+                Text("Retry")
+            }
         }
     }
 }

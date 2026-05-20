@@ -10,43 +10,136 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.runtime.Composable
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import presentation.ui.components.ButtonCancel
 import presentation.ui.components.ButtonSave
+import presentation.ui.components.ErrorScreen
 import presentation.ui.components.InputField
+import presentation.ui.components.LoadingScreen
 import presentation.ui.components.RadioButton
 import presentation.ui.components.SwitchDarkMode
 import presentation.ui.components.SwitchNotification
+import presentation.viewmodel.login.LoginNavigationEvent
+import presentation.viewmodel.login.LoginUiState
+import presentation.viewmodel.login.LoginViewModel
 
 @Composable
-fun LoginScreen() {
-    var username by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
+fun LoginScreen(
+    viewModel: LoginViewModel,
+    onNavigate: () -> Unit
+) {
+    val uiState by viewModel
+        .uiState
+        .collectAsStateWithLifecycle()
+    var username by remember {
+        mutableStateOf("")
+    }
+    var password by remember {
+        mutableStateOf("")
+    }
+    LaunchedEffect(Unit) {
+        viewModel.navigationEvent.collect { event ->
+            when (event) {
+                LoginNavigationEvent.Navigate -> {
+                    onNavigate()
+                }
+                LoginNavigationEvent.NavigateBack -> {
+                    // do nothing
+                }
+            }
+        }
+    }
+    when (uiState) {
+        LoginUiState.Loading -> {
+            LoadingScreen()
+        }
+        is LoginUiState.Error -> {
+            ErrorScreen(
+                message =
+                    (uiState as LoginUiState.Error)
+                        .message
+            )
+        }
+        else -> {
+            LoginScreenContent(
+                username = username,
+                password = password,
+                onUsernameChange = {},
+                onPasswordChange = {},
+                onLoginClick = {
+                    if (
+                        username.isBlank() ||
+                        password.isBlank()
+                    ) {
+                        return@LoginScreenContent
+                    }
+                    viewModel.onLoginClick(
+                        username = username,
+                        password = password
+                    )
+                },
+                onCancelClick = {
+                    viewModel.resetUiState()
+                }
+            )
+        }
+    }
+}
+@Composable
+fun LoginScreenContent(
+    username: String,
+    password: String,
+    onUsernameChange: (String) -> Unit,
+    onPasswordChange: (String) -> Unit,
+    onLoginClick: () -> Unit,
+    onCancelClick: () -> Unit
+) {
     Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp)
-    ){
+    ) {
         Text(
-            "On this screen you can log in into your account!",
-            style = MaterialTheme.typography.headlineSmall
+            text =
+                "On this screen you can log in into your account!",
+            style =
+                MaterialTheme.typography.headlineSmall
         )
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(
+            modifier =
+                Modifier.height(16.dp)
+        )
         LazyColumn(
-            modifier = Modifier.fillMaxSize().padding(16.dp)
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp)
         ) {
             item {
-                InputField("Username", username) { username = it }
-                InputField("Password", password) { password = it }
-                Spacer(modifier = Modifier.height(16.dp))
+                InputField(
+                    label = "Username",
+                    value = username,
+                    onChange =
+                        onUsernameChange
+                )
+                InputField(
+                    label = "Password",
+                    value = password,
+                    onChange =
+                        onPasswordChange
+                )
+                Spacer(
+                    modifier =
+                        Modifier.height(16.dp)
+                )
             }
             item {
                 RadioButton()
@@ -59,29 +152,23 @@ fun LoginScreen() {
             }
             item {
                 Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    modifier =
+                        Modifier.fillMaxWidth(),
+                    horizontalArrangement =
+                        Arrangement.spacedBy(8.dp)
                 ) {
                     ButtonSave(
-                        onClick = {
-                            if (username.isEmpty() || password.length < 8) {
-                                println("Invalid input")}
-                        },
-                        modifier = Modifier.weight(1f)
+                        onClick = onLoginClick,
+                        modifier =
+                            Modifier.weight(1f)
                     )
                     ButtonCancel(
-                        modifier = Modifier.weight(1f)
+                        onClick = onCancelClick,
+                        modifier =
+                            Modifier.weight(1f)
                     )
                 }
             }
         }
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun PreviewScreen5() {
-    MaterialTheme {
-        LoginScreen()
     }
 }

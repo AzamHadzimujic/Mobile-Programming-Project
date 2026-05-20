@@ -1,13 +1,23 @@
 package presentation.navigation
 
-sealed class Screen(val route: String){
-    data object AddExpense: Screen("AddExpenseScreen/{tripId}")
-    data object CurrentTrip: Screen("CurrentTripScreen/{tripId}") {
-        fun createRoute(tripId: String) = "CurrentTripScreen/$tripId"
-    }
-    data object HomeScreen: Screen("HomeScreen")
-    data object LoginScreen: Screen("LoginScreen")
-    data object PastTrip: Screen("PastTripScreen")
+sealed class Screen(
+    val route: String
+) {
+    // LOGIN
+    data object LoginScreen :
+        Screen("login")
+    // HOME
+    data object HomeScreen :
+        Screen("home")
+    // CURRENT TRIP
+    data object CurrentTrip :
+        Screen("current_trip")
+    // ADD EXPENSE
+    data object AddExpense :
+        Screen("add_expense")
+    // PAST TRIPS
+    data object PastTrip :
+        Screen("past_trip")
     companion object {
         fun bottomBarRoutes() = listOf(
             HomeScreen.route,

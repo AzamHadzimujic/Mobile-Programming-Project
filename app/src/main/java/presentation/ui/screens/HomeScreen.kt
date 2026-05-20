@@ -4,72 +4,167 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.runtime.Composable
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import presentation.ui.R
-import presentation.ui.components.SwitchNotification
-import androidx.compose.ui.tooling.preview.Preview
+import presentation.ui.components.ErrorScreen
 import presentation.ui.components.InfoBox
+import presentation.ui.components.InputField
+import presentation.ui.components.LoadingScreen
+import presentation.ui.components.SwitchNotification
+import presentation.viewmodel.home.HomeShortcutUiState
+import presentation.viewmodel.home.HomeShortcutViewModel
 
 @Composable
-fun Homescreen() {
-
-    Box(modifier = Modifier.fillMaxSize()) {
+fun Homescreen(
+    viewModel: HomeShortcutViewModel,
+    onScreenClick: (String) -> Unit
+) {
+    val uiState by viewModel
+        .uiState
+        .collectAsStateWithLifecycle()
+    when (uiState) {
+        HomeShortcutUiState.Loading -> {
+            LoadingScreen()
+        }
+        is HomeShortcutUiState.Error -> {
+            ErrorScreen(
+                message =
+                    (uiState as HomeShortcutUiState.Error)
+                        .message
+            )
+        }
+        is HomeShortcutUiState.Success -> {
+            val state =
+                uiState as HomeShortcutUiState.Success
+            HomescreenContent(
+                searchQuery =
+                    state.searchQuery,
+                shortcuts =
+                    state.shortcuts,
+                onSearchQueryChange =
+                    viewModel::onSearchQueryChange,
+                onScreenClick =
+                    onScreenClick
+            )
+        }
+        HomeShortcutUiState.Init -> {
+            // do nothing
+        }
+    }
+}
+@Composable
+fun HomescreenContent(
+    searchQuery: String,
+    shortcuts: List<model.ScreenShortcutData>,
+    onSearchQueryChange: (String) -> Unit,
+    onScreenClick: (String) -> Unit
+) {
+    Box(
+        modifier = Modifier.fillMaxSize()
+    ) {
         Image(
-            painter = painterResource(id = R.drawable.vacation1),
+            painter =
+                painterResource(
+                    id = R.drawable.vacation1
+                ),
             contentDescription = null,
-            modifier = Modifier.fillMaxSize(),
-            contentScale = ContentScale.Crop
+            modifier =
+                Modifier.fillMaxSize(),
+            contentScale =
+                ContentScale.Crop
         )
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(16.dp)
-        ){
+        ) {
             Text(
-                "Welcome to Trip Budget Planner",
-                style = MaterialTheme.typography.headlineSmall
+                text =
+                    "Welcome to Trip Budget Planner",
+                style =
+                    MaterialTheme.typography.headlineSmall
             )
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(
+                modifier =
+                    Modifier.height(16.dp)
+            )
+            InputField(
+                label = "Search shortcuts",
+                value = searchQuery,
+                onChange =
+                    onSearchQueryChange
+            )
+            Spacer(
+                modifier =
+                    Modifier.height(16.dp)
+            )
             LazyColumn {
                 item {
-                    LazyRow {
-                        item {
-                            InfoBox("Manage Expenses", Color.Green)
-                        }
-                        item {
-                            InfoBox("View Past Trips", Color.Magenta)
+                    LazyRow(
+                        horizontalArrangement =
+                            Arrangement.spacedBy(8.dp)
+                    ) {
+                        items(
+                            shortcuts.take(2)
+                        ) { shortcut ->
+                            InfoBox(
+                                text = shortcut.title,
+                                backgroundColor =
+                                    Color.Green,
+                                onClick = {
+                                    onScreenClick(
+                                        shortcut.route
+                                    )
+                                }
+                            )
                         }
                     }
                 }
                 item {
-                    LazyRow {
-                        item {
-                            InfoBox("Track Spending", Color.LightGray)
-                        }
-                        item {
-                            InfoBox("Manage your Account", Color.Cyan)
+                    Spacer(
+                        modifier =
+                            Modifier.height(12.dp)
+                    )
+                    LazyRow(
+                        horizontalArrangement =
+                            Arrangement.spacedBy(8.dp)
+                    ) {
+                        items(
+                            shortcuts.drop(2).take(2)
+                        ) { shortcut ->
+                            InfoBox(
+                                text = shortcut.title,
+                                backgroundColor =
+                                    Color.Magenta,
+                                onClick = {
+
+                                    onScreenClick(
+                                        shortcut.route
+                                    )
+                                }
+                            )
                         }
                     }
                 }
+                // SWITCH
                 item {
+                    Spacer(
+                        modifier =
+                            Modifier.height(16.dp)
+                    )
                     SwitchNotification()
                 }
             }
         }
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun PreviewScreen1() {
-    MaterialTheme {
-        Homescreen()
     }
 }
