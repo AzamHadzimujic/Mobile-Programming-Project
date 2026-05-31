@@ -63,7 +63,7 @@ object DatabaseModule {
     @Provides
     fun provideTripDao(db: AppDatabase): TripDao =
         db.tripDao()
-    }
+
 
     @Provides
     @Singleton
@@ -104,3 +104,4 @@ object DatabaseModule {
     ): TripRepository {
         return TripRepositoryImpl(dao)
     }
+}
