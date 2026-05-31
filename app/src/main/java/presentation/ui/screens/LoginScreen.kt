@@ -52,9 +52,7 @@ fun LoginScreen(
                 LoginNavigationEvent.Navigate -> {
                     onNavigate()
                 }
-                LoginNavigationEvent.NavigateBack -> {
-                    // do nothing
-                }
+                LoginNavigationEvent.NavigateBack -> Unit
             }
         }
     }
@@ -73,12 +71,13 @@ fun LoginScreen(
             LoginScreenContent(
                 username = username,
                 password = password,
-                onUsernameChange = {},
-                onPasswordChange = {},
+                onUsernameChange = { username = it},
+                onPasswordChange = { password = it},
                 onLoginClick = {
                     if (
                         username.isBlank() ||
-                        password.isBlank()
+                        password.isBlank() ||
+                        password.length < 6
                     ) {
                         return@LoginScreenContent
                     }
@@ -134,7 +133,8 @@ fun LoginScreenContent(
                     label = "Password",
                     value = password,
                     onChange =
-                        onPasswordChange
+                        onPasswordChange,
+                    isPassword = true
                 )
                 Spacer(
                     modifier =

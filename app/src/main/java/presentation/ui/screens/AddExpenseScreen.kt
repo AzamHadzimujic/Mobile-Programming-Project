@@ -48,7 +48,10 @@ fun AddExpenseScreen(
             ErrorScreen(
                 message =
                     (uiState as AddExpenseUiState.Error)
-                        .message
+                        .message,
+                onRetryClick = {
+                    viewModel.resetUiState()
+                }
             )
         }
         else -> {

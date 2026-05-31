@@ -6,6 +6,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import model.data.local.entity.UserEntity
 import model.repository.user.SessionRepository
 import model.repository.user.UserRepository
 import javax.inject.Inject
@@ -21,20 +22,19 @@ class LoginViewModel @Inject constructor(
     val navigationEvent = _navigationEvent.receiveAsFlow()
     fun onLoginClick(username: String, password: String) {
         viewModelScope.launch {
-            _uiState.value = LoginUiState.Loading
-            try {
-                val user = userRepository.getUser(username, password)
-                if (user != null) {
-                    sessionRepository.saveUserId(user.id)
-                    _uiState.value = LoginUiState.Success(isLoggedIn = true)
-                    _navigationEvent.send(LoginNavigationEvent.Navigate)
-                } else {
-                    _uiState.value =
-                        LoginUiState.Error("Invalid username or password")
-                }
-            } catch (e: Throwable) {
-                _uiState.value =
-                    LoginUiState.Error("Something went wrong: ${e.message}")
+            var user = userRepository.getUser(username, password)
+            if (user == null) {
+                val newUser = UserEntity(
+                    id = 0,
+                    username = username,
+                    password = password
+                )
+                userRepository.insertUser(newUser)
+                user = userRepository.getUser(username, password)
+            }
+            user?.let {
+                sessionRepository.saveUserId(it.id)
+                _navigationEvent.send(LoginNavigationEvent.Navigate)
             }
         }
     }

@@ -39,14 +39,14 @@ class PastTripViewModel @Inject constructor(
                 .let { publishState(it) }
         }
     }
-    fun addTrip(title: String) {
+    fun addTrip(title: String, category: String, amount: String, date: String) {
         viewModelScope.launch {
             repository.insertTrip(
                 PastTripEntity(
                     title = title,
-                    categories = "New",
-                    amount = "0",
-                    date = "Now"
+                    categories = category,
+                    amount = amount,
+                    date = date
                 )
             )
         }

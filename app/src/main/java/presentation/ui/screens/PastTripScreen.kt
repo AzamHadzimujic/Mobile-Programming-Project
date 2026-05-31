@@ -52,8 +52,9 @@ fun PastTripScreen(
                     viewModel::updateSearch,
                 onDeleteTrip =
                     viewModel::deleteTrip,
-                onAddTrip =
-                    viewModel::addTrip,
+                onAddTrip = { title, category, amount, date ->
+                    viewModel.addTrip(title, category, amount, date)
+                },
                 onClearCompleted =
                     viewModel::clearAll,
                 onTripClick =
@@ -68,87 +69,76 @@ fun PastTripsContent(
     searchQuery: String,
     onSearchQueryChange: (String) -> Unit,
     onDeleteTrip: (PastTripEntity) -> Unit,
-    onAddTrip: (String) -> Unit,
+    onAddTrip: (String, String, String, String) -> Unit,
     onClearCompleted: () -> Unit,
     onTripClick: () -> Unit
 ) {
-    var newTripText by remember {
-        mutableStateOf("")
-    }
+    var title by remember { mutableStateOf("") }
+    var category by remember { mutableStateOf("") }
+    var amount by remember { mutableStateOf("") }
+    var date by remember { mutableStateOf("") }
+
     Column(
-        modifier = Modifier.padding(16.dp)
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp)
     ) {
         Text(
             text = "Past Trips Expenses",
-            style =
-                MaterialTheme.typography.headlineSmall
+            style = MaterialTheme.typography.headlineSmall
         )
         Text(
             text = "${pastTrips.size} trips",
-            style =
-                MaterialTheme.typography.bodyMedium
+            style = MaterialTheme.typography.bodyMedium
         )
+        Spacer(modifier = Modifier.height(12.dp))
         HorizontalDivider()
         SearchBar(
             query = searchQuery,
-            onQueryChange =
-                onSearchQueryChange
+            onQueryChange = onSearchQueryChange
         )
+        Spacer(modifier = Modifier.height(12.dp))
         HorizontalDivider()
-        LazyColumn {
-            items(
-                pastTrips,
-                key = { it.id }
-            ) { trip ->
+        LazyColumn(
+            modifier = Modifier
+                .weight(1f)
+                .fillMaxWidth(),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            items(pastTrips, key = { it.id }) { trip ->
                 Card(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .clickable {
-                            onTripClick()
-                        }
+                        .clickable { onTripClick() }
                 ) {
                     Row(
-                        modifier =
-                            Modifier.padding(12.dp),
-                        horizontalArrangement =
-                            Arrangement.SpaceBetween
+                        modifier = Modifier.padding(12.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         Column {
                             Text(trip.title)
                             Text(
                                 text = trip.categories,
-                                style =
-                                    MaterialTheme.typography.bodySmall
+                                style = MaterialTheme.typography.bodySmall
                             )
                             Text(
-                                text =
-                                    "Amount: ${trip.amount}",
-                                style =
-                                    MaterialTheme.typography.bodySmall
+                                text = "Amount: ${trip.amount}",
+                                style = MaterialTheme.typography.bodySmall
                             )
                             Text(
                                 text = trip.date,
-                                style =
-                                    MaterialTheme.typography.bodySmall
+                                style = MaterialTheme.typography.bodySmall
                             )
                         }
-                        IconButton(
-                            onClick = {
-                                onDeleteTrip(trip)
-                            }
-                        ) {
+
+                        IconButton(onClick = { onDeleteTrip(trip) }) {
                             Icon(
-                                imageVector =
-                                    Icons.Default.Delete,
+                                imageVector = Icons.Default.Delete,
                                 contentDescription = "Delete"
                             )
                         }
                     }
                 }
-                Spacer(
-                    modifier =
-                        Modifier.height(8.dp)
-                )
             }
             if (pastTrips.isEmpty()) {
                 item {
@@ -157,41 +147,58 @@ fun PastTripsContent(
             }
         }
         HorizontalDivider()
+        Spacer(modifier = Modifier.height(8.dp))
         Row {
-            OutlinedTextField(
-                value = newTripText,
-                onValueChange = {
-                    newTripText = it
-                },
-                modifier =
-                    Modifier.weight(1f),
-                label = {
-                    Text("New Trip")
+            Column {
+                OutlinedTextField(
+                    value = title,
+                    onValueChange = { title = it },
+                    modifier = Modifier.fillMaxWidth(),
+                    label = { Text("Title") }
+                )
+
+                OutlinedTextField(
+                    value = category,
+                    onValueChange = { category = it },
+                    modifier = Modifier.fillMaxWidth(),
+                    label = { Text("Category") }
+                )
+
+                OutlinedTextField(
+                    value = amount,
+                    onValueChange = { amount = it },
+                    modifier = Modifier.fillMaxWidth(),
+                    label = { Text("Amount") }
+                )
+                OutlinedTextField(
+                    value = date,
+                    onValueChange = { date = it },
+                    modifier = Modifier.fillMaxWidth(),
+                    label = { Text("Date") }
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Button(
+                    onClick = {
+                        onAddTrip(title,category,amount,date)
+                        title = ""
+                        category = ""
+                        amount = ""
+                        date = ""
+                    },
+                    enabled = title.isNotBlank() &&
+                            category.isNotBlank() &&
+                            amount.isNotBlank()
+                ) {
+                    Text("Add Trip")
                 }
-            )
-            Spacer(
-                modifier =
-                    Modifier.width(8.dp)
-            )
-            Button(
-                onClick = {
-                    onAddTrip(newTripText)
-                    newTripText = ""
-                },
-                enabled =
-                    newTripText.isNotBlank()
-            ) {
-                Text("Add")
             }
         }
-        Spacer(
-            modifier =
-                Modifier.height(8.dp)
-        )
+        Spacer(modifier = Modifier.height(8.dp))
         OutlinedButton(
             onClick = onClearCompleted,
-            modifier =
-                Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth()
         ) {
             Text("Clear All")
         }
